@@ -151,6 +151,7 @@ void ConnectPX4()
 // ── 起飞流程 ──────────────────────────────────
 void TakeOff(double waittime)
 {
+    SetPoint(0, 0, InitialHeight);
     if (abs(PX4_Position.z) <= 0.2 && abs(PX4_Position.x) <= 0.4 &&
         abs(PX4_Position.y) <= 0.4)
     {

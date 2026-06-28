@@ -6,6 +6,7 @@
 #include "communication.h" // current_state
 #include <ros/ros.h>
 
+extern Position PX4_Position;
 namespace {
 std::string StateName(DroneState s)
 {
@@ -44,7 +45,7 @@ void Drone::BuildTransitionTable()
     transition_table_[DroneState_MIAOZHUN] = { DroneState_ZHENCHA, DroneState_RETURN, DroneState_LAND };
     transition_table_[DroneState_ZHENCHA]  = { DroneState_RETURN, DroneState_LAND };
     transition_table_[DroneState_RETURN]   = { DroneState_LAND };
-    transition_table_[DroneState_LAND]     = {};
+    transition_table_[DroneState_LAND]     = { DroneState_NONE };
 }
 
 bool Drone::IsTransitionValid(DroneState from, DroneState to) const
@@ -235,6 +236,14 @@ void Drone::HandleState()
 void Drone::OnEnterState(DroneState state)
 {
     ROS_INFO("[Drone] >>> 进入: %s", StateName(state).c_str());
+    if(state == DroneState_GOAL) 
+    {
+        ros::spinOnce();
+        Goal.mode = 0;
+        Goal.px = PX4_Position.x;
+        Goal.py = PX4_Position.y;
+        Goal.pz = PX4_Position.z;
+        SetPoint(Goal.px, Goal.py, Goal.pz);} // 切入目标模式时将目标点设置为当前的坐标，防止乱飘
 }
 
 void Drone::OnExitState(DroneState state)
@@ -258,7 +267,6 @@ void Drone::ExecuteGoal()
     {
         SetVel(Goal.vx, Goal.vy, Goal.pz);
     }
-    //RequestTransition(DroneState_ZHENCHA);
 }
 
 void Drone::ExecuteWaiting()
@@ -275,7 +283,6 @@ void Drone::ExecuteLand()
 {
     Land();
     RequestTransition(DroneState_NONE);
-    // 终态，不再跳转
 }
 
 void Drone::ExecuteZhencha()
