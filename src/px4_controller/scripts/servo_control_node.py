@@ -15,7 +15,7 @@ def handle_throw_cmd(req):
     try:
         cmd = req.cmd
         if cmd == 1:
-            rospy.loginfo("Servo1 action: open/close/open")
+            rospy.loginfo("\033[92m" + "[Throw] 1号开始投放..." + "\033[0m")
             servo1.ChangeDutyCycle(2.5 + OpenAngle * 10 / 180)
             sleep(1)
             servo1.ChangeDutyCycle(2.5 + CloseAngle * 10 / 180)
@@ -23,7 +23,7 @@ def handle_throw_cmd(req):
             servo1.ChangeDutyCycle(2.5 + OpenAngle * 10 / 180)
             resp.success = True
         elif cmd == 2:
-            rospy.loginfo("Servo2 action: open/close/open")
+            rospy.loginfo("\033[92m" + "[Throw] 2号开始投放..." + "\033[0m")
             servo2.ChangeDutyCycle(2.5 + OpenAngle * 10 / 180)
             sleep(1)
             servo2.ChangeDutyCycle(2.5 + CloseAngle * 10 / 180)
@@ -31,7 +31,7 @@ def handle_throw_cmd(req):
             servo2.ChangeDutyCycle(2.5 + OpenAngle * 10 / 180)
             resp.success = True
         else:
-            rospy.logwarn("Unknown command: {}".format(cmd))
+            rospy.logwarn("[Throw] Unknown command: {}".format(cmd))
             resp.success = False
     except Exception as e:
         rospy.logerr("Service error: {}".format(e))
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     sleep(1)
 
     service = rospy.Service("ThrowCmd", throwcmd, handle_throw_cmd)
-    rospy.loginfo("[Throw] Service ready. Waiting for commands...")
+    rospy.loginfo("\033[92m" + "[Throw] Service ready. Waiting for commands..." + "\033[0m")
     rospy.spin()
 
     servo1.stop()
